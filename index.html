@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LightReach Commission Calculator · Fastrac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #0a0b0d;
+      --surface:     #111318;
+      --surface2:    #191c24;
+      --orange:      #f26522;
+      --orange-glow: rgba(242,101,34,0.18);
+      --text:        #f0f2f8;
+      --muted:       #7a8099;
+      --border:      rgba(255,255,255,0.08);
+      --border-hi:   rgba(242,101,34,0.4);
+      --green:       #34d399;
+      --red:         #f87171;
+      --blue:        #60a5fa;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header { border-bottom: 1px solid var(--border); background: rgba(10,11,13,0.95); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 100; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 9px; }
+    .logo-mark { width: 28px; height: 28px; background: var(--orange); border-radius: 7px; display: grid; place-items: center; }
+    .logo-mark svg { width: 15px; height: 15px; fill: white; }
+    .logo-name { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+    .logo-name span { color: var(--orange); }
+    .badge { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border: 1px solid var(--border-hi); border-radius: 999px; color: var(--orange); background: var(--orange-glow); }
+
+    .page { max-width: 480px; margin: 0 auto; padding: 32px 20px 80px; display: flex; flex-direction: column; gap: 12px; }
+
+    h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 800; line-height: 1; text-transform: uppercase; margin-bottom: 4px; }
+    h1 em { font-style: normal; color: var(--orange); }
+    .sub { color: var(--muted); font-size: 13px; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+    label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s; appearance: none; -webkit-appearance: none; }
+    input:focus, select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-glow); }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .row2:last-child { margin-bottom: 0; }
+    .select-wrap { position: relative; }
+    .select-wrap select { padding-right: 32px; cursor: pointer; }
+    .select-wrap::after { content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--muted); pointer-events: none; }
+
+    .out-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { border-radius: 14px; padding: 16px 18px; }
+    .metric.primary { background: linear-gradient(135deg, rgba(242,101,34,0.18), rgba(242,101,34,0.06)); border: 1px solid var(--border-hi); position: relative; overflow: hidden; }
+    .metric.primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--orange); }
+    .metric.secondary { background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
+    .m-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    .primary .m-label { color: var(--orange); }
+    .secondary .m-label { color: var(--muted); }
+    .m-value { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; }
+    .m-hint { font-size: 11px; color: var(--muted); margin-top: 5px; }
+    .positive { color: var(--green); }
+    .negative { color: var(--red); }
+    .blue { color: var(--blue); }
+
+    .disclaimer { font-size: 12px; color: var(--muted); line-height: 1.6; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .disc-title { margin-bottom: 12px; }
+    .instructions { padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .instructions li strong { color: var(--text); }
+
+    @media (max-width: 420px) {
+      .out-row, .row2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"><svg viewBox="0 0 20 20"><path d="M10 2L3 7v11h5v-5h4v5h5V7L10 2z"/></svg></div>
+    <div class="logo-name">Fast<span>rac</span></div>
+  </div>
+  <span class="badge">Active Pricing 04/14/2026</span>
+</header>
+
+<div class="page">
+
+  <div>
+    <h1>Commission <em>Calculator</em></h1>
+    <p class="sub">LightReach · Pulse Matrix</p>
+  </div>
+
+  <div class="card">
+    <div class="row2">
+      <div>
+        <label>Panels</label>
+        <div class="select-wrap">
+          <select id="panelCount"></select>
+        </div>
+      </div>
+      <div>
+        <label>Battery Config</label>
+        <div class="select-wrap">
+          <select id="pw3Count">
+            <option value="1">1 PW3</option>
+            <option value="2">1 PW3 + Exp</option>
+            <option value="3">1 PW3 + 2 Exp</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label>Base EPC ($/W)</label>
+        <input id="baseEpc" type="number" min="0" step="0.01" value="1.50" />
+      </div>
+    </div>
+  </div>
+
+<div class="metric secondary">
+    <div class="m-label">Redline PPW</div>
+    <div class="m-value blue" id="redlinePpw">—</div>
+    <div class="m-hint">Enter this in Sunraise to generate proposal</div>
+  </div>
+
+  <div class="disclaimer">
+    <p class="disc-title">Enter your <strong>Base EPC</strong> and select panels + battery config. The <strong>Redline PPW</strong> is what you enter in Sunraise to generate the proposal.</p>
+  </div>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmt$ = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+  const r2 = n => n.toFixed(2);
+
+  // Material cost only (no Fastrac fee) — cols C/D/E from new sheet
+  // [1 PW3, 1 PW3 + Exp, 1 PW3 + 2 Exp]
+  const MATERIAL = {
+    10:[15000,25500,36000],11:[15000,25500,36000],12:[15000,25500,36000],
+    13:[15000,25500,36000],14:[15000,25500,36000],15:[15000,25500,36000],
+    16:[15000,25500,36000],17:[15000,25500,36000],18:[15000,25500,36000],
+    19:[15235,25735,36235],20:[15550,26050,36550],21:[15900,26400,36900],
+    22:[16215,26715,37215],23:[16565,27065,37565],24:[16880,27380,37880],
+    25:[17230,27730,38230],26:[17545,28045,38545],27:[17895,28395,38895],
+    28:[18210,28710,39210],29:[18560,29060,39560],30:[18875,29375,39875],
+    31:[19225,29725,40225],32:[19540,30040,40540],33:[19890,30390,40890],
+    34:[20205,30705,41205],35:[20555,31055,41555],36:[20870,31370,41870],
+    37:[21220,31720,42220],38:[21535,32035,42535],39:[21885,32385,42885],
+    40:[22200,32700,43200],41:[22550,33050,43550],42:[22865,33365,43865],
+    43:[31215,41715,52215],44:[31530,42030,52530],45:[31880,42380,52880],
+    46:[32195,42695,53195],47:[32545,43045,53545],48:[32860,43360,53860],
+    49:[33210,43710,54210],50:[33525,44025,54525],51:[33875,44375,54875],
+    52:[34190,44690,55190],53:[34540,45040,55540],54:[34855,45355,55855],
+    55:[35205,45705,56205],56:[35520,46020,56520],57:[35870,46370,56870],
+    58:[36185,46685,57185],59:[36535,47035,57535],60:[36850,47350,57850],
+    61:[37200,47700,58200],62:[37515,48015,58515],63:[37865,48365,58865],
+    64:[38180,48680,59180],65:[38530,49030,59530],66:[38845,49345,59845],
+    67:[39195,49695,60195],68:[39510,50010,60510],69:[39860,50360,60860],
+    70:[40175,50675,61175],71:[40525,51025,61525],72:[40840,51340,61840],
+    73:[41190,51690,62190],74:[41505,52005,62505],75:[41855,52355,62855],
+  };
+
+  // Redline PPW — Sunraise pricing from new sheet (base at $1.60 EPC)
+  const REDLINE_BASE = {
+    10:1.60,11:1.60,12:1.60,13:1.60,14:1.60,15:1.60,16:1.60,17:1.60,18:1.60,
+    19:1.63,20:1.67,21:1.71,22:1.74,23:1.77,24:1.80,25:1.82,26:1.84,27:1.87,
+    28:1.89,29:1.91,30:1.92,31:1.94,32:1.95,33:1.97,34:1.98,35:2.00,36:2.01,
+    37:2.02,38:2.03,39:2.04,40:2.05,41:2.06,42:2.07,43:2.54,44:2.54,45:2.54,
+    46:2.53,47:2.53,48:2.53,49:2.53,50:2.53,51:2.53,52:2.52,53:2.52,54:2.52,
+    55:2.52,56:2.52,57:2.52,58:2.51,59:2.51,60:2.51,61:2.51,62:2.51,63:2.51,
+    64:2.51,65:2.51,66:2.50,67:2.50,68:2.50,69:2.50,70:2.50,71:2.50,72:2.50,
+    73:2.50,74:2.50,75:2.50,
+  };
+
+  // Populate panel dropdown 10–75
+  const sel = $('panelCount');
+  for (let p = 10; p <= 75; p++) {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = p;
+    if (p === 18) opt.selected = true;
+    sel.appendChild(opt);
+  }
+
+  function calculate() {
+    const panels     = Number($('panelCount').value);
+    const baseEpcRaw = $('baseEpc').value;
+
+    if (baseEpcRaw === '') {
+      $('redlinePpw').textContent = '—';
+      return;
+    }
+
+    const baseEpc = Math.max(0, Number(baseEpcRaw) || 0);
+    const delta   = baseEpc - 1.60;
+    const redline = REDLINE_BASE[panels] + delta;
+    $('redlinePpw').textContent = r2(redline);
+  }
+
+  ['panelCount','pw3Count'].forEach(id => $(id).addEventListener('change', calculate));
+  $('baseEpc').addEventListener('input', calculate);
+  $('baseEpc').addEventListener('change', calculate);
+
+  $('panelCount').addEventListener('change', function() {
+    if (Number(this.value) >= 45) $('pw3Count').value = '2';
+    calculate();
+  });
+
+  calculate();
+</script>
+</body>
+</html>
