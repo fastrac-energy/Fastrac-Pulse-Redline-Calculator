@@ -1,1 +1,0 @@
-# Fastrac-Pulse-Redline-Calculator
