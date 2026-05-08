@@ -102,8 +102,10 @@
         <div class="select-wrap">
           <select id="pw3Count">
             <option value="1">1 PW3</option>
-            <option value="2">1 PW3 + Expansion</option>
-            <option value="3">1 PW3 + 2 Expansion</option>
+            <option value="1e">1 PW3 + Expansion</option>
+            <option value="2">2 PW3</option>
+            <option value="2e">2 PW3 + Expansion</option>
+            <option value="3">3 PW3</option>
           </select>
         </div>
       </div>
@@ -195,7 +197,7 @@
 
   function calculate() {
     const panels     = Number($('panelCount').value);
-    const pw3        = Number($('pw3Count').value);
+    const pw3val     = $('pw3Count').value;
     const baseEpcRaw = $('baseEpc').value;
 
     if (baseEpcRaw === '') {
@@ -205,7 +207,13 @@
 
     const baseEpc = Math.max(0, Number(baseEpcRaw) || 0);
     const delta   = baseEpc - 1.50;
-    const redline = REDLINE[panels][pw3 - 1] + delta;
+
+    // Redline index: 1PW3=0, 1PW3+Exp=0, 2PW3=1, 2PW3+Exp=2, 3PW3=2
+    const idx = (pw3val === '1' || pw3val === '1e') ? 0
+              : (pw3val === '2') ? 1
+              : 2;
+
+    const redline = REDLINE[panels][idx] + delta;
     $('redlinePpw').textContent = r2(redline);
   }
 
