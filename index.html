@@ -162,7 +162,7 @@
     73:[41190,51690,62190],74:[41505,52005,62505],75:[41855,52355,62855],
   };
 
-  // Redline PPW — [1PW3, 2PW3, 3PW3] panels 17–73 exact from matrix
+  // Redline PPW at base EPC $1.50 — [1PW3, 2PW3, 3PW3] panels 17–73
   const REDLINE_BASE = {
     17:[1.50,3.04,4.59],18:[1.50,2.96,4.42],19:[1.53,2.91,4.29],
     20:[1.57,2.88,4.19],21:[1.61,2.86,4.11],22:[1.64,2.83,4.02],
@@ -206,13 +206,14 @@
     }
 
     const baseEpc = Math.max(0, Number(baseEpcRaw) || 0);
+    const delta   = baseEpc - 1.50;
 
     // Redline index: 1PW3=0, 1PW3+Exp=1, 2PW3=1, 2PW3+Exp=2, 3PW3=2
     const idx = pw3val === '1' ? 0
               : (pw3val === '1e' || pw3val === '2') ? 1
               : 2;
 
-    const redline = REDLINE_BASE[panels][idx];
+    const redline = REDLINE_BASE[panels][idx] + delta;
     $('redlinePpw').textContent = r2(redline);
     $('redlinePpw').textContent = r2(redline);
   }
