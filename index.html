@@ -48,27 +48,17 @@
     .select-wrap select { padding-right: 32px; cursor: pointer; }
     .select-wrap::after { content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--muted); pointer-events: none; }
 
-    .out-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .metric { border-radius: 14px; padding: 16px 18px; }
-    .metric.primary { background: linear-gradient(135deg, rgba(242,101,34,0.18), rgba(242,101,34,0.06)); border: 1px solid var(--border-hi); position: relative; overflow: hidden; }
-    .metric.primary::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--orange); }
     .metric.secondary { background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
-    .m-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
-    .primary .m-label { color: var(--orange); }
-    .secondary .m-label { color: var(--muted); }
+    .m-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
     .m-value { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; }
     .m-hint { font-size: 11px; color: var(--muted); margin-top: 5px; }
-    .positive { color: var(--green); }
-    .negative { color: var(--red); }
     .blue { color: var(--blue); }
 
     .disclaimer { font-size: 12px; color: var(--muted); line-height: 1.6; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.02); }
-    .disc-title { margin-bottom: 12px; }
-    .instructions { padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
-    .instructions li strong { color: var(--text); }
 
     @media (max-width: 420px) {
-      .out-row, .row2 { grid-template-columns: 1fr; }
+      .row2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -110,57 +100,27 @@
         </div>
       </div>
     </div>
-    <div class="row2">
-      <div>
-        <label>Base EPC ($/W)</label>
-        <input id="baseEpc" type="number" min="0" step="0.01" value="1.50" />
-      </div>
+    <div>
+      <label>Base EPC ($/W)</label>
+      <input id="baseEpc" type="number" min="0" step="0.01" value="1.50" />
     </div>
   </div>
 
-<div class="metric secondary">
+  <div class="metric secondary">
     <div class="m-label">Redline PPW</div>
     <div class="m-value blue" id="redlinePpw">—</div>
     <div class="m-hint">Enter this in Sunraise to generate proposal</div>
   </div>
 
   <div class="disclaimer">
-    <p class="disc-title">Enter your <strong>Base EPC</strong> and select panels + battery config. The <strong>Redline PPW</strong> is what you enter in Sunraise to generate the proposal.</p>
+    Enter your <strong>Base EPC</strong> and select panels + battery config. The <strong>Redline PPW</strong> is what you enter in Sunraise to generate the proposal.
   </div>
 
 </div>
 
 <script>
   const $ = id => document.getElementById(id);
-  const fmt$ = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
   const r2 = n => n.toFixed(2);
-
-  // Material cost only (no Fastrac fee) — cols C/D/E from new sheet
-  // [1 PW3, 1 PW3 + Exp, 1 PW3 + 2 Exp]
-  const MATERIAL = {
-    10:[15000,25500,36000],11:[15000,25500,36000],12:[15000,25500,36000],
-    13:[15000,25500,36000],14:[15000,25500,36000],15:[15000,25500,36000],
-    16:[15000,25500,36000],17:[15000,25500,36000],18:[15000,25500,36000],
-    19:[15235,25735,36235],20:[15550,26050,36550],21:[15900,26400,36900],
-    22:[16215,26715,37215],23:[16565,27065,37565],24:[16880,27380,37880],
-    25:[17230,27730,38230],26:[17545,28045,38545],27:[17895,28395,38895],
-    28:[18210,28710,39210],29:[18560,29060,39560],30:[18875,29375,39875],
-    31:[19225,29725,40225],32:[19540,30040,40540],33:[19890,30390,40890],
-    34:[20205,30705,41205],35:[20555,31055,41555],36:[20870,31370,41870],
-    37:[21220,31720,42220],38:[21535,32035,42535],39:[21885,32385,42885],
-    40:[22200,32700,43200],41:[22550,33050,43550],42:[22865,33365,43865],
-    43:[31215,41715,52215],44:[31530,42030,52530],45:[31880,42380,52880],
-    46:[32195,42695,53195],47:[32545,43045,53545],48:[32860,43360,53860],
-    49:[33210,43710,54210],50:[33525,44025,54525],51:[33875,44375,54875],
-    52:[34190,44690,55190],53:[34540,45040,55540],54:[34855,45355,55855],
-    55:[35205,45705,56205],56:[35520,46020,56520],57:[35870,46370,56870],
-    58:[36185,46685,57185],59:[36535,47035,57535],60:[36850,47350,57850],
-    61:[37200,47700,58200],62:[37515,48015,58515],63:[37865,48365,58865],
-    64:[38180,48680,59180],65:[38530,49030,59530],66:[38845,49345,59845],
-    67:[39195,49695,60195],68:[39510,50010,60510],69:[39860,50360,60860],
-    70:[40175,50675,61175],71:[40525,51025,61525],72:[40840,51340,61840],
-    73:[41190,51690,62190],74:[41505,52005,62505],75:[41855,52355,62855],
-  };
 
   // Redline PPW at base EPC $1.50 — [1PW3, 2PW3, 3PW3] panels 17–73
   const REDLINE_BASE = {
@@ -185,7 +145,7 @@
     71:[2.40,2.77,3.14],72:[2.40,2.76,3.13],73:[2.40,2.76,3.12],
   };
 
-  // Populate panel dropdown 10–75
+  // Populate panel dropdown 17–73
   const sel = $('panelCount');
   for (let p = 17; p <= 73; p++) {
     const opt = document.createElement('option');
@@ -200,10 +160,7 @@
     const pw3val     = $('pw3Count').value;
     const baseEpcRaw = $('baseEpc').value;
 
-    if (baseEpcRaw === '') {
-      $('redlinePpw').textContent = '—';
-      return;
-    }
+    if (baseEpcRaw === '') { $('redlinePpw').textContent = '—'; return; }
 
     const baseEpc = Math.max(0, Number(baseEpcRaw) || 0);
     const delta   = baseEpc - 1.50;
@@ -213,9 +170,7 @@
               : (pw3val === '1e' || pw3val === '2') ? 1
               : 2;
 
-    const redline = REDLINE_BASE[panels][idx] + delta;
-    $('redlinePpw').textContent = r2(redline);
-    $('redlinePpw').textContent = r2(redline);
+    $('redlinePpw').textContent = r2(REDLINE_BASE[panels][idx] + delta);
   }
 
   ['panelCount','pw3Count'].forEach(id => $(id).addEventListener('change', calculate));
